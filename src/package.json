@@ -1,6 +1,6 @@
 {
   "name": "ng-neo-directives",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "repository": {
     "type": "git",
     "url": ""
@@ -10,7 +10,7 @@
     "email": "info@neocomplexx.com"
   },
   "keywords": [
-    "angular", "directives", "tabs"
+    "angular", "directives", "tabs", "command"
   ],
   "license": "MIT",
   "bugs": {
