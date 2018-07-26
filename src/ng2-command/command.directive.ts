@@ -87,7 +87,7 @@ export class CommandDirective implements OnInit, OnDestroy {
 			}).subscribe();
 
 		if (this.isMobileOperatingSystem()) {
-			this.element.nativeElement.addEventListener('touch', async (event: MouseEvent) => {
+			this.element.nativeElement.addEventListener('touchstart', async (event: MouseEvent) => {
 				event.preventDefault();
 				console.log('[commandDirective::onTouch]');
 				this.command.verifyCommandExecutionPipe();
