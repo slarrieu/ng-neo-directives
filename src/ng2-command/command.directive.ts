@@ -61,22 +61,7 @@ export class CommandDirective implements OnInit, OnDestroy {
 		// @Inject(COMMAND_CONFIG) private config: CommandOptions,
 		private renderer: Renderer,
 		private element: ElementRef
-	) {
-		if (this.isMobileOperatingSystem()) {
-			element.nativeElement.addEventListener('touch', async (event: MouseEvent) => {
-				event.preventDefault();
-				console.log('[commandDirective::onClick]');
-				this.command.execute(this.commandValue);
-			});
-		} else {
-			element.nativeElement.addEventListener('click', async (event: MouseEvent) => {
-				console.log("Command click");
-				event.preventDefault();
-				console.log('[commandDirective::onTouch]');
-				this.command.execute(this.commandValue);
-			});
-		}
-	}
+	) {	}
 
 	ngOnInit() {
 		// console.log('[commandDirective::init]');
@@ -100,24 +85,24 @@ export class CommandDirective implements OnInit, OnDestroy {
 				// console.log('[commandDirective::isExecuting$]', x);
 				this.renderer.setElementClass(this.element.nativeElement, this.commandOptions.executingCssClass, x);
 			}).subscribe();
+
+		if (this.isMobileOperatingSystem()) {
+			this.element.nativeElement.addEventListener('touch', async (event: MouseEvent) => {
+				event.preventDefault();
+				console.log('[commandDirective::onTouch]');
+				this.command.verifyCommandExecutionPipe();
+				this.command.execute(this.commandValue);
+			});
+		} else {
+			this.element.nativeElement.addEventListener('click', async (event: MouseEvent) => {
+				event.preventDefault();
+				console.log('[commandDirective::onClick]');
+				this.command.verifyCommandExecutionPipe();
+				this.command.execute(this.commandValue);
+			});
+		}
+
 	}
-
-	//@HostListener('click', ['$event', 'true'])
-	//onClick(event: MouseEvent) {
-	//	if (this.isMobileOperatingSystem()) return;
-	//	event.preventDefault();
-	//	debugger;
-	//	// console.log('[commandDirective::onClick]');
-	//	this.command.execute(this.commandValue);
-	//}
-
-	// @HostListener('touch', ['$event', 'true'])
-	// onTouch(event: MouseEvent) {
-	// 	event.preventDefault();
-	// 	debugger;
-	// 	// console.log('[commandDirective::onClick]');
-	// 	this.command.execute(this.commandValue);
-	// }
 
 	ngOnDestroy() {
 		// console.log('[commandDirective::destroy]');
