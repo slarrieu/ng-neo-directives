@@ -93,6 +93,12 @@ export class CommandDirective implements OnInit, OnDestroy {
 				this.command.verifyCommandExecutionPipe();
 				this.command.execute(this.commandValue);
 			});
+			this.element.nativeElement.addEventListener('focus', async (event) => {
+				event.preventDefault();
+				console.log('[commandDirective::onFocus]');
+				this.command.verifyCommandExecutionPipe();
+				this.command.execute(this.commandValue);
+			});
 		} else {
 			this.element.nativeElement.addEventListener('click', async (event: MouseEvent) => {
 				event.preventDefault();
