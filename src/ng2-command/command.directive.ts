@@ -88,20 +88,17 @@ export class CommandDirective implements OnInit, OnDestroy {
 
 		if (this.isMobileOperatingSystem()) {
 			this.element.nativeElement.addEventListener('touchstart', async (event: MouseEvent) => {
-				console.log('[commandDirective::onTouch2]');
+				event.preventDefault();
+				console.log('[commandDirective::onTouch4]');
 				this.command.verifyCommandExecutionPipe();
 				this.command.execute(this.commandValue);
-			}, {passive: true});
-			this.element.nativeElement.addEventListener('focus', async (event) => {
-				console.log('[commandDirective::onFocus]');
-				this.command.verifyCommandExecutionPipe();
-				this.command.execute(this.commandValue);
-			}, {passive: true});
+			});
 			this.element.nativeElement.addEventListener('focusin', async (event) => {
+				event.preventDefault();
 				console.log('[commandDirective::onFocusIn]');
 				this.command.verifyCommandExecutionPipe();
 				this.command.execute(this.commandValue);
-			}, {passive: true});
+			});
 		} else {
 			this.element.nativeElement.addEventListener('click', async (event: MouseEvent) => {
 				event.preventDefault();
