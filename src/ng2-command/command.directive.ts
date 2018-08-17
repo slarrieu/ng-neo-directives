@@ -17,6 +17,7 @@ import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/observable/combineLatest';
 import { TimerObservable } from 'rxjs/observable/TimerObservable';
+import { OnReturnDirective } from '../onReturn.directive';
 
 export const COMMAND_CONFIG = new InjectionToken<string>('COMMAND_CONFIG');
 
@@ -49,7 +50,7 @@ export class CommandDirective implements OnInit, OnDestroy {
 	@Input() commandOptions: CommandOptions;
 	@Input() commandCanExecute: boolean;
 	@Input() commandValue: any;
-	@Input() commandDelay: number;
+	@Input() commandNextFocus: any;
 	// @HostBinding('disabled') isDisabled: boolean;
 
 	private canExecute$$: Subscription;
@@ -61,7 +62,7 @@ export class CommandDirective implements OnInit, OnDestroy {
 		// @Inject(COMMAND_CONFIG) private config: CommandOptions,
 		private renderer: Renderer,
 		private element: ElementRef
-	) {	}
+	) { }
 
 	ngOnInit() {
 		// console.log('[commandDirective::init]');
@@ -71,6 +72,7 @@ export class CommandDirective implements OnInit, OnDestroy {
 			throw new Error('[commandDirective] command should be defined!');
 		} else {
 			this.command.verifyCommandExecutionPipe();
+			this.command.setNextFocus(this.commandNextFocus);
 		}
 
 		this.canExecute$$ = this.command.canExecute$
@@ -104,7 +106,7 @@ export class CommandDirective implements OnInit, OnDestroy {
 		} else {
 			this.element.nativeElement.addEventListener('click', async (event: MouseEvent) => {
 				event.preventDefault();
-				console.log('[commandDirective::onClick]');
+				console.log('[commandDirective::onClick3]');
 				this.command.verifyCommandExecutionPipe();
 				this.command.execute(this.commandValue);
 			});
@@ -120,24 +122,23 @@ export class CommandDirective implements OnInit, OnDestroy {
 	}
 
 	private isMobileOperatingSystem(): boolean {
+		let isMobile = false;
 		var userAgent = navigator.userAgent || navigator.vendor;
-	  
-			// Windows Phone must come first because its UA also contains "Android"
-		  if (/windows phone/i.test(userAgent)) {
-			  return true; // "Windows Phone";
-		  }
-	  
-		  if (/android/i.test(userAgent)) {
-			  return true; // "Android";
-		  }
-	  
-		  // iOS detection from: http://stackoverflow.com/a/9039885/177710
-		  if (/iPad|iPhone|iPod/.test(userAgent)) {
-			  return true; // "iOS";
-		  }
-	  
-		  return false; // "unknown";
-	  }
+
+		// Windows Phone must come first because its UA also contains "Android"
+		if (/windows phone/i.test(userAgent)) {
+			isMobile = true; // "Windows Phone";
+		} else if (/android/i.test(userAgent)) {
+			isMobile = true; // "Android";
+		} else if (/iPad|iPhone|iPod/.test(userAgent)) {
+			// iOS detection from: http://stackoverflow.com/a/9039885/177710
+			isMobile = true; // "iOS";
+		}
+
+		isMobile = false;
+
+		return isMobile; // "unknown";
+	}
 }
 
 export interface CommandOptions {
@@ -175,6 +176,8 @@ export interface ICommand {
 	destroy(): void;
 
 	verifyCommandExecutionPipe();
+
+	setNextFocus(element: any);
 }
 
 
@@ -196,6 +199,8 @@ export class Command implements ICommand {
 	private isExecuting$$: Subscription;
 	private canExecute$$: Subscription;
 	private executionPipe$$: Subscription;
+
+	private elementNextFocus: any;
 
 	public result: Promise<any>;
 
@@ -278,17 +283,19 @@ export class Command implements ICommand {
 			});
 
 		pipe$ = isAsync
-			? pipe$.switchMap((value) => { 
+			? pipe$.switchMap((value) => {
 				if (delay && delay > 0) {
 					if (this.delaySubscribe) this.delaySubscribe.unsubscribe();
 					const timer = Observable.timer(delay) as TimerObservable;
-					this.delaySubscribe = timer.subscribe(t => executeParm(value));
+					this.delaySubscribe = timer.subscribe(t => { executeParm(value); OnReturnDirective.setNextFocus(this.elementNextFocus); });
 					return Promise.resolve(null);
-				} else { 		
-					return executeParm(value); 
-				} 
+				} else {
+					const result = executeParm(value);
+					OnReturnDirective.setNextFocus(this.elementNextFocus);
+					return result;
+				}
 			})
-			: pipe$.do((value) => executeParm(value));
+			: pipe$.do((value) => { executeParm(value); OnReturnDirective.setNextFocus(this.elementNextFocus); });
 
 		pipe$ = pipe$
 			.do(() => {
@@ -303,4 +310,7 @@ export class Command implements ICommand {
 		this.executionPipe$$ = pipe$.subscribe();
 	}
 
+	public setNextFocus(element: any) {
+		this.elementNextFocus = element;
+	}
 }
