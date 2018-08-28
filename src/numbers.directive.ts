@@ -21,7 +21,7 @@ export class NumbersDirective {
             e.altKey || e.ctrlKey || e.key === 'Home' || e.key === 'End' || e.key === 'PageDown' || e.key === 'PageUp' ||
             e.key === 'ArrowRight' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Shift') { return; }
 
-        if (!(e.key >= '0' && e.key <= '9')) {
+        if ((!(e.key >= '0' && e.key <= '9') && (e.key !== '.'))) {
             e.preventDefault();
         }
     }
