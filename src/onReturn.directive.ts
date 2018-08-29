@@ -55,13 +55,19 @@ export class OnReturnDirective {
         } else if (onReturn) {
             const element = onReturn;
             if (element instanceof HTMLInputElement || element instanceof HTMLButtonElement || element instanceof HTMLSelectElement) {
-                if (!element.disabled) { element.focus(); };
+                if (element.disabled) { 
+                    element.disabled = false;
+                }
+                element.focus(); 
             } else {
                 let input = element['ctrInput'];
                 if (input) {
                     input = input['nativeElement'];
                     if (input && input instanceof HTMLInputElement) {
-                        if (!input.disabled) { input.focus(); };
+                        if (input.disabled) { 
+                            input.disabled = false;
+                        }
+                        input.focus(); 
                     }
                 }
             }

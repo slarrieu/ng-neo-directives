@@ -104,6 +104,15 @@ export class CommandDirective implements OnInit, OnDestroy {
 				this.command.execute(this.commandValue);
 			});
 		} else {
+			this.element.nativeElement.addEventListener('keydown', async (event: KeyboardEvent) => {
+				if ((event.which === 13 || event.keyCode === 13)) {
+					event.preventDefault();
+					event.stopPropagation();
+					console.log('[commandDirective::onKeydown]');
+					this.command.verifyCommandExecutionPipe();
+					this.command.execute(this.commandValue);
+				}
+			});
 			this.element.nativeElement.addEventListener('click', async (event: MouseEvent) => {
 				event.preventDefault();
 				console.log('[commandDirective::onClick3]');
