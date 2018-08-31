@@ -1,6 +1,6 @@
 {
   "name": "ng-neo-directives",
-  "version": "2.0.14",
+  "version": "2.0.15",
   "scripts": {
     "build": "gulp build",
     "build:watch": "gulp",
@@ -75,5 +75,6 @@
   },
   "engines": {
     "node": ">=6.0.0"
-  }
+  },
+  "dependencies": {}
 }

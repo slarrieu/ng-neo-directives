@@ -18,12 +18,13 @@ export class OnReturnDirective {
         }
     }
 
+    // tslint:disable-next-line:member-ordering
     public static setNextFocus(onReturn: any): void {
         if (onReturn instanceof Array) {
             let termine = false;
             let i = 0;
             while (!termine && i < onReturn.length) {
-                const element = onReturn[i];
+                let element = onReturn[i];
                 if (element) {
                     if (element instanceof HTMLInputElement ||
                         element instanceof HTMLButtonElement ||
@@ -46,6 +47,15 @@ export class OnReturnDirective {
                                 if (input && input instanceof HTMLInputElement) {
                                     if (!input.disabled) { input.focus(); termine = true; };
                                 }
+                            } else {
+                                element = document.getElementById(element);
+                                if (element) {
+                                    if (element.disabled) {
+                                        element.disabled = false;
+                                    }
+                                    element.focus();
+                                    termine = true;
+                                }
                             }
                         }
                     }
@@ -53,21 +63,29 @@ export class OnReturnDirective {
                 i++;
             }
         } else if (onReturn) {
-            const element = onReturn;
+            let element = onReturn;
             if (element instanceof HTMLInputElement || element instanceof HTMLButtonElement || element instanceof HTMLSelectElement) {
-                if (element.disabled) { 
+                if (element.disabled) {
                     element.disabled = false;
                 }
-                element.focus(); 
+                element.focus();
             } else {
                 let input = element['ctrInput'];
                 if (input) {
                     input = input['nativeElement'];
                     if (input && input instanceof HTMLInputElement) {
-                        if (input.disabled) { 
+                        if (input.disabled) {
                             input.disabled = false;
                         }
-                        input.focus(); 
+                        input.focus();
+                    }
+                } else {
+                    element = document.getElementById(onReturn);
+                    if (element) {
+                        if (element.disabled) {
+                            element.disabled = false;
+                        }
+                        element.focus();
                     }
                 }
             }
