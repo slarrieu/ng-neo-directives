@@ -1,4 +1,5 @@
-import { Directive, ElementRef, OnInit, AfterViewInit, Input } from '@angular/core';
+import { Directive, ElementRef, OnInit, AfterViewInit, Input, AfterViewChecked } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 
 @Directive({
   selector: '[neoAutofocus]'
@@ -6,6 +7,8 @@ import { Directive, ElementRef, OnInit, AfterViewInit, Input } from '@angular/co
 export class NeoAutofocusDirective implements OnInit, AfterViewInit {
 
   @Input('neoAutofocus') neoAutofocus: boolean;
+
+  private subscription: Subscription;
 
   constructor(private el: ElementRef) {
   }
@@ -15,9 +18,12 @@ export class NeoAutofocusDirective implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (this.neoAutofocus) {
-      this.setFocus();
-    }
+    this.subscription = Observable.timer(100).subscribe((e) => {
+      if (this.neoAutofocus) {
+        this.setFocus();
+      }
+      this.subscription.unsubscribe();
+    });
   }
 
   private setFocus() {

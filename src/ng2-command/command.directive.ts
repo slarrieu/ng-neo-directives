@@ -213,6 +213,9 @@ export class Command implements ICommand {
 
 	public result: Promise<any>;
 
+	public asyncAction: (any) => any;
+	public resultAsyncAction: any;
+
 	/**
 	 * Creates an instance of Command.
 	 *
@@ -279,6 +282,11 @@ export class Command implements ICommand {
 		if (this.isExecuting$) {
 			this.isExecuting$.complete();
 		}
+		
+		if (this.asyncAction != null) { 
+			this.asyncAction = null;
+			this.resultAsyncAction = null;
+		}
 	}
 
 	private delaySubscribe: Subscription;
@@ -289,6 +297,7 @@ export class Command implements ICommand {
 			.do(() => {
 				// console.log('[command::excutionPipe$] do#1 - set execute');
 				this.isExecuting$.next(true);
+				if (isAsync && this.asyncAction != null) this.resultAsyncAction = this.asyncAction(null);
 			});
 
 		pipe$ = isAsync
@@ -296,11 +305,10 @@ export class Command implements ICommand {
 				if (delay && delay > 0) {
 					if (this.delaySubscribe) this.delaySubscribe.unsubscribe();
 					const timer = Observable.timer(delay) as TimerObservable;
-					this.delaySubscribe = timer.subscribe(t => { executeParm(value); OnReturnDirective.setNextFocus(this.elementNextFocus); });
+					this.delaySubscribe = timer.subscribe(t => { executeParm(value); });
 					return Promise.resolve(null);
 				} else {
 					const result = executeParm(value);
-					OnReturnDirective.setNextFocus(this.elementNextFocus);
 					return result;
 				}
 			})
@@ -310,6 +318,8 @@ export class Command implements ICommand {
 			.do(() => {
 				// console.log('[command::excutionPipe$] do#2 - set idle');
 				this.isExecuting$.next(false);
+				if (isAsync && this.asyncAction != null) this.resultAsyncAction = this.asyncAction(this.resultAsyncAction);
+				OnReturnDirective.setNextFocus(this.elementNextFocus);
 			},
 				(e) => {
 					console.log('[command::excutionPipe$] do#2 error - set idle' + e.toString());
