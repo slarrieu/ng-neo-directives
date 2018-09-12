@@ -77,9 +77,15 @@ export class CommandDirective implements OnInit, OnDestroy {
 
 		this.canExecute$$ = this.command.canExecute$
 			.do(x => {
-				// console.log('[commandDirective::canExecute$]', x);
-				if (this.element.nativeElement.localName === 'button') {
-					this.element.nativeElement.disabled = !x;
+				// console.log('[commandDirective::canExecute$]', x);	
+				if (this.commandValue == this.command.executingParam) {
+					if (this.element.nativeElement.localName === 'button') {
+						this.element.nativeElement.disabled = !x;
+					}
+				} else {
+					if (this.element.nativeElement.localName === 'button') {
+						this.element.nativeElement.disabled = (this.command.canExecute && x);
+					}
 				}
 			}).subscribe();
 		this.isExecuting$$ = this.command.isExecuting$
@@ -187,6 +193,8 @@ export interface ICommand {
 	verifyCommandExecutionPipe();
 
 	setNextFocus(element: any);
+
+	executingParam: any;
 }
 
 
@@ -215,6 +223,8 @@ export class Command implements ICommand {
 
 	public asyncAction: (any) => any;
 	public resultAsyncAction: any;
+
+	public executingParam: any;
 
 	/**
 	 * Creates an instance of Command.
@@ -261,10 +271,12 @@ export class Command implements ICommand {
 	}
 
 	execute(value?: any) {
+		this.executingParam = value;
 		this.executionPipe$.next(value);
 	}
 
 	async executeWithResult(value?: any): Promise<any> {
+		this.executingParam = value;
 		this.executionPipe$.next(value);
 		return await this.result;
 	}
@@ -312,18 +324,20 @@ export class Command implements ICommand {
 					return result;
 				}
 			})
-			: pipe$.do((value) => { executeParm(value); OnReturnDirective.setNextFocus(this.elementNextFocus); });
+			: pipe$.do((value) => { executeParm(value); });
 
 		pipe$ = pipe$
 			.do(() => {
 				// console.log('[command::excutionPipe$] do#2 - set idle');
 				this.isExecuting$.next(false);
+				this.executingParam = null;
 				if (isAsync && this.asyncAction != null) this.resultAsyncAction = this.asyncAction(this.resultAsyncAction);
 				OnReturnDirective.setNextFocus(this.elementNextFocus);
 			},
 				(e) => {
 					console.log('[command::excutionPipe$] do#2 error - set idle' + e.toString());
 					this.isExecuting$.next(false);
+					this.executingParam = null;
 					this.buildExecutionPipe(executeParm, isAsync, delay);
 				});
 		this.executionPipe$$ = pipe$.subscribe();
