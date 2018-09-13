@@ -58,6 +58,9 @@ export class CommandDirective implements OnInit, OnDestroy {
 
 	private config: CommandOptions = COMMAND_DEFAULT_CONFIG;
 
+	private ownDisabledState: boolean = false;
+	private commandDisabledChanged: boolean = false;
+
 	constructor(
 		// @Inject(COMMAND_CONFIG) private config: CommandOptions,
 		private renderer: Renderer,
@@ -75,16 +78,35 @@ export class CommandDirective implements OnInit, OnDestroy {
 			this.command.setNextFocus(this.commandNextFocus);
 		}
 
+		// if (this.element.nativeElement.localName === 'button') {	
+		// 	let thisAux = this;	// Set up a new observer
+		// 	var observer = new MutationObserver(function(mutations) {
+		// 		mutations.forEach(function(mutation) {
+		// 			// Check the modified attributeName is "disabled"
+		// 			if(!thisAux.commandDisabledChanged) {
+		// 				if (mutation.attributeName === "disabled") {
+		// 					thisAux.ownDisabledState = thisAux.element.nativeElement.disabled;
+		// 				}
+		// 			} else {
+		// 				thisAux.commandDisabledChanged = false;
+		// 			}
+		// 		});    
+		// 	});
+		// 	// Configure to only listen to attribute changes
+		// 	var config = { attributes: true };
+		// 	// Start observing myElem
+		// 	observer.observe(this.element.nativeElement, config);
+		// }
+
 		this.canExecute$$ = this.command.canExecute$
 			.do(x => {
 				// console.log('[commandDirective::canExecute$]', x);	
-				if (this.commandValue == this.command.executingParam) {
-					if (this.element.nativeElement.localName === 'button') {
+				if (this.element.nativeElement.localName === 'button') {
+					this.commandDisabledChanged = true;
+					if (this.commandValue == this.command.executingParam) {
 						this.element.nativeElement.disabled = !x;
-					}
-				} else {
-					if (this.element.nativeElement.localName === 'button') {
-						this.element.nativeElement.disabled = !(!this.element.nativeElement.disabled && this.command.canExecute && x);
+					// } else {
+					// 	this.element.nativeElement.disabled = !(!this.ownDisabledState && x);
 					}
 				}
 			}).subscribe();
