@@ -105,8 +105,8 @@ export class CommandDirective implements OnInit, OnDestroy {
 					this.commandDisabledChanged = true;
 					if (this.commandValue == this.command.executingParam) {
 						this.element.nativeElement.disabled = !x;
-					// } else {
-					// 	this.element.nativeElement.disabled = !(!this.ownDisabledState && x);
+						// } else {
+						// 	this.element.nativeElement.disabled = !(!this.ownDisabledState && x);
 					}
 				}
 			}).subscribe();
@@ -120,14 +120,17 @@ export class CommandDirective implements OnInit, OnDestroy {
 			this.element.nativeElement.addEventListener('touchstart', async (event: MouseEvent) => {
 				event.preventDefault();
 				event.stopPropagation();
-				console.log('[commandDirective::onTouch5]');
+				//	console.log('[commandDirective::onTouch5]');
+				if (this.element.nativeElement.localName === 'input') {
+					return;
+				}
 				this.command.verifyCommandExecutionPipe();
 				this.command.execute(this.commandValue);
 			});
 			this.element.nativeElement.addEventListener('focusin', async (event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				console.log('[commandDirective::onFocusIn]');
+				//	console.log('[commandDirective::onFocusIn]');
 				this.command.verifyCommandExecutionPipe();
 				this.command.execute(this.commandValue);
 			});
@@ -136,14 +139,17 @@ export class CommandDirective implements OnInit, OnDestroy {
 				if ((event.which === 13 || event.keyCode === 13)) {
 					event.preventDefault();
 					event.stopPropagation();
-					console.log('[commandDirective::onKeydown]');
+					//	console.log('[commandDirective::onKeydown]');
 					this.command.verifyCommandExecutionPipe();
 					this.command.execute(this.commandValue);
 				}
 			});
 			this.element.nativeElement.addEventListener('click', async (event: MouseEvent) => {
 				event.preventDefault();
-				console.log('[commandDirective::onClick3]');
+				// console.log('[commandDirective::onClick3]');
+				if (this.element.nativeElement.localName === 'input') {
+					return;
+				}
 				this.command.verifyCommandExecutionPipe();
 				this.command.execute(this.commandValue);
 			});
@@ -316,8 +322,8 @@ export class Command implements ICommand {
 		if (this.isExecuting$) {
 			this.isExecuting$.complete();
 		}
-		
-		if (this.asyncAction != null) { 
+
+		if (this.asyncAction != null) {
 			this.asyncAction = null;
 			this.resultAsyncAction = null;
 		}
